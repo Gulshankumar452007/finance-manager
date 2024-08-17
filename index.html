@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 1em 0;
+        }
+
+        main {
+            padding: 1em;
+        }
+
+        section {
+            margin-bottom: 2em;
+        }
+
+        form {
+            margin-bottom: 1em;
+        }
+
+        label {
+            display: block;
+            margin: 0.5em 0;
+        }
+
+        input, button {
+            margin: 0.5em 0;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.5em;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #chart-section {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Finance Manager</h1>
+    </header>
+
+    <main>
+        <section id="budget-section">
+            <h2>Budget Tracker</h2>
+            <form id="budget-form">
+                <label for="budget">Set Budget:</label>
+                <input type="number" id="budget" required>
+                <button type="submit">Set Budget</button>
+            </form>
+            <p id="budget-display">Budget: $0</p>
+        </section>
+
+        <section id="expense-section">
+            <h2>Expense Log</h2>
+            <form id="expense-form">
+                <label for="expense-name">Expense Name:</label>
+                <input type="text" id="expense-name" required>
+                <label for="expense-amount">Amount:</label>
+                <input type="number" id="expense-amount" required>
+                <button type="submit">Add Expense</button>
+            </form>
+            <ul id="expense-list"></ul>
+        </section>
+
+        <section id="chart-section">
+            <h2>Expense Chart</h2>
+            <canvas id="expense-chart"></canvas>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const budgetForm = document.getElementById('budget-form');
+            const expenseForm = document.getElementById('expense-form');
+            const budgetDisplay = document.getElementById('budget-display');
+            const expenseList = document.getElementById('expense-list');
+            const expenseChart = document.getElementById('expense-chart').getContext('2d');
+
+            let budget = 0;
+            let expenses = [];
+
+            // Set Budget
+            budgetForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                budget = parseFloat(document.getElementById('budget').value);
+                budgetDisplay.textContent = `Budget: $${budget.toFixed(2)}`;
+                document.getElementById('budget').value = '';
+            });
+
+            // Add Expense
+            expenseForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('expense-name').value;
+                const amount = parseFloat(document.getElementById('expense-amount').value);
+                expenses.push({ name, amount });
+                updateExpenseList();
+                updateChart();
+                document.getElementById('expense-name').value = '';
+                document.getElementById('expense-amount').value = '';
+            });
+
+            // Update Expense List
+            function updateExpenseList() {
+                expenseList.innerHTML = '';
+                expenses.forEach(expense => {
+                    const li = document.createElement('li');
+                    li.textContent = `${expense.name}: $${expense.amount.toFixed(2)}`;
+                    expenseList.appendChild(li);
+                });
+            }
+
+            // Update Chart
+            function updateChart() {
+                const labels = expenses.map(expense => expense.name);
+                const data = expenses.map(expense => expense.amount);
+                
+                new Chart(expenseChart, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Expenses',
+                            data: data,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
